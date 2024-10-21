@@ -144,6 +144,47 @@ async function run() {
     const result = await query.toArray();
     res.send(result);
   });
+  app.get("/products/category/:category?", async (req, res) => {
+    // Extract category from the URL parameter
+    const category = req.params.category;
+
+    // Initialize the query object
+    let query = {};
+
+    // If the category is provided, add it to the query
+    if (category) {
+        query.category = { $regex: category, $options: 'i' }; // Case-insensitive search
+    }
+
+    try {
+        // Query the database based on the constructed query object
+        const result = await userCollection_product.find(query).toArray();
+        res.send(result);
+    } catch (error) {
+        res.status(500).send({ message: "Error fetching products", error });
+    }
+});
+
+app.get("/products/:id", async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    // Find the user by uid (not _id)
+    const product = await userCollection_product.findOne({ _id: new ObjectId(productId) });
+
+    if (!product) {
+      return res.status(404).send({ error: "User not found" });
+    }
+
+    // Send the found user data
+    res.send(product);
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).send({ error: "Internal server error" });
+  }
+});
+ 
+
   
       app.put("/user/:id", async (req, res) => {
         const id = req.params.id;

@@ -7,7 +7,7 @@ const port=process.env.port|| 5000;
 
 
  //const courses=require("./data/courseDetails.json");
- const books=require("./data/Book.json");
+ //const books=require("./data/Book.json");
 app.use(cors());
 app.use(express.json());
 
@@ -34,6 +34,7 @@ async function run() {
       const userCollection = client.db("usersDbBootcamp").collection("users");
       const userCollection_category = client.db("usersDbBootcamp").collection("category");
       const userCollection_product = client.db("usersDbBootcamp").collection("products");
+      const userCollection_purchase = client.db("usersDbBootcamp").collection("purchase");
       app.get("/users", async (req, res) => {
         const query = userCollection.find();
         const result = await query.toArray();
@@ -183,8 +184,15 @@ app.get("/products/:id", async (req, res) => {
     res.status(500).send({ error: "Internal server error" });
   }
 });
- 
 
+//Purchase details
+
+app.post("/puchase", async (req, res) => {
+  const purchaseDetails = req.body;
+  console.log(purchaseDetails);
+  const result = await userCollection_purchase.insertOne(purchaseDetails);
+  res.send(result);
+});
   
       app.put("/user/:id", async (req, res) => {
         const id = req.params.id;
@@ -235,15 +243,15 @@ app.get("/products/:id", async (req, res) => {
 });
 
 
-app.get('/books',(req,res)=>{
-    res.send(books);
-   });
+// app.get('/books',(req,res)=>{
+//     res.send(books);
+//    });
 
-app.get('/books/:id',(req,res)=>{
-    const id = parseInt(req.params.id); 
-    const selectedBook = books.find((book) => book.bookId === id);
-    res.send(selectedBook);
-   });
+// app.get('/books/:id',(req,res)=>{
+//     const id = parseInt(req.params.id); 
+//     const selectedBook = books.find((book) => book.bookId === id);
+//     res.send(selectedBook);
+//    });
 
 // app.get('/courses',(req,res)=>{
 //     res.send(courses);

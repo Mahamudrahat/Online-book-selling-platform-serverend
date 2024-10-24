@@ -5,9 +5,6 @@ require("dotenv").config();
 const app=express();
 const port=process.env.port|| 5000;
 
-
- //const courses=require("./data/courseDetails.json");
- //const books=require("./data/Book.json");
 app.use(cors());
 app.use(express.json());
 
@@ -111,6 +108,39 @@ async function run() {
         res.send(result);
       });
 
+       app.delete("/categories/delete/:id", async (req, res) => {
+        const id = req.params.id;
+        console.log(id);
+        const query = { _id: new ObjectId(id) };
+        const result = await userCollection_category.deleteOne(query);
+        res.send(result);
+      });
+
+      app.put("/categories/update/:id", async (req, res) => {
+        const id = req.params.id;
+        const category = req.body;
+        console.log(id, category);
+  
+        const filter = { _id: new ObjectId(id) };
+        const option = { upsert: true };
+  
+        const updatedUser = {
+          $set: {
+            name: category.name,
+            image: category.image,
+          },
+        };
+  
+        const result = await userCollection_category.updateOne(
+          filter,
+          updatedUser,
+          option
+        );
+        res.send(result);
+      });
+
+
+
 
   //All product Collection
 
@@ -185,6 +215,40 @@ app.get("/products/:id", async (req, res) => {
   }
 });
 
+app.put("/products/update/:id", async (req, res) => {
+  const id = req.params.id;
+  const product = req.body;
+  console.log(id, product);
+
+  const filter = { _id: new ObjectId(id) };
+  const option = { upsert: true };
+
+  const updatedUser = {
+    $set: {
+      name: product.name,
+      price:product.price,
+      rating:product.rating,
+      category:product.category,
+      image: product.image,
+    },
+  };
+
+  const result = await userCollection_product.updateOne(
+    filter,
+    updatedUser,
+    option
+  );
+  res.send(result);
+});
+
+app.delete("/products/delete/:id", async (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+  const query = { _id: new ObjectId(id) };
+  const result = await userCollection_product.deleteOne(query);
+  res.send(result);
+});
+
 //Purchase details
 
 app.post("/puchase", async (req, res) => {
@@ -193,6 +257,28 @@ app.post("/puchase", async (req, res) => {
   const result = await userCollection_purchase.insertOne(purchaseDetails);
   res.send(result);
 });
+
+app.get('/purchase/:userId', async (req, res) => {
+  const userId = req.params.userId; // Get userId from URL params
+  console.log("Received userId:", userId); // Log for debugging
+
+  try {
+    // Query to find documents by userId
+    const query = { userId: userId }; // Assuming userId is a string
+    const result = await userCollection_purchase.find(query).toArray(); // Use toArray() to fetch multiple documents
+
+    if (result.length === 0) {
+      return res.status(404).send({ error: "No documents found for this userId" });
+    }
+
+    console.log("Found documents:", result); // Log the found documents
+    res.send(result); // Send the found documents as response
+  } catch (error) {
+    console.error("Error fetching documents:", error);
+    res.status(500).send({ error: "Internal server error" });
+  }
+});
+
   
       app.put("/user/:id", async (req, res) => {
         const id = req.params.id;
@@ -204,8 +290,78 @@ app.post("/puchase", async (req, res) => {
   
         const updatedUser = {
           $set: {
-            name: user.name,
-            email: user.email,
+            address: user.address,
+            displayName: user.displayName,
+            photoUrl:user.photoUrl,
+          },
+        };
+  
+        const result = await userCollection.updateOne(
+          filter,
+          updatedUser,
+          option
+        );
+        res.send(result);
+      });
+
+      app.put("/user/role/:id", async (req, res) => {
+        const id = req.params.id;
+        const user = req.body;
+        console.log(id, user);
+  
+        const filter = { _id: new ObjectId(id) };
+        const option = { upsert: true };
+        
+     
+        const updatedUser = {
+          $set: {
+           isAdmin:user.adminstatus,
+          },
+        };
+  
+        const result = await userCollection.updateOne(
+          filter,
+          updatedUser,
+          option
+        );
+        res.send(result);
+      });
+
+       app.put("/user/role/:id", async (req, res) => {
+        const id = req.params.id;
+        const user = req.body;
+        console.log(id, user);
+  
+        const filter = { _id: new ObjectId(id) };
+        const option = { upsert: true };
+        
+     
+        const updatedUser = {
+          $set: {
+           isAdmin:user.adminstatus,
+          },
+        };
+  
+        const result = await userCollection.updateOne(
+          filter,
+          updatedUser,
+          option
+        );
+        res.send(result);
+      });
+
+      app.put("/user/update/BlockStatus/:id", async (req, res) => {
+        const id = req.params.id;
+        const user = req.body;
+        console.log(id, user);
+  
+        const filter = { _id: new ObjectId(id) };
+        const option = { upsert: true };
+        
+     
+        const updatedUser = {
+          $set: {
+           isBlock:user.blockStatus,
           },
         };
   
